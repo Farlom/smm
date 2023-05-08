@@ -14,7 +14,6 @@ function App() {
   return (
     <StyledContainer className="App">
         <BrowserRouter>
-
         <Link to="/">Главная</Link>
             <Routes>
                 <Route path="/" element={<Main />} />
