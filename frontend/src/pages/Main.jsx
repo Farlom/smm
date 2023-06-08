@@ -1,45 +1,88 @@
-import React, {useEffect, useState} from 'react';
-import axios from "axios";
+import React, {useState} from 'react';
+import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
+import Columns from "./Columns";
 
-const API_ENDPOINT = "http://127.0.0.1:8000/api/users"
 
 const Main = () => {
 
-    const [name, setName] = useState("")
-    const [age, setAge] = useState("")
+    const data = [
+        {
+            columnName: "To do",
+            id: "test-1",
+            data: [
+                {
+                    name: "Eliseev Ivan",
+                    age: 22,
+                    id: "1"
+                },
+                {
+                    name: "Keril",
+                    age: 21,
+                    id: "2"
+                },
+                {
+                    name: "Jordan",
+                    age: 23,
+                    id: "3"
+                },
+                {
+                    name: "Tolik ebolik",
+                    age: 0,
+                    id: "4"
+                }
+            ]
+        },
+        {
+            columnName: "Progress",
+            id: "test-2",
+            data: []
+        },
+        {
+            columnName: "Done",
+            id: "test-3",
+            data: []
+        },
+    ]
 
-    const registerUser = async () => {
-        console.log("REG")
-        try {
-            const resp = await axios.post(API_ENDPOINT, {
-                name,
-                age
-            })
-            console.log(resp, " resp")
-        } catch (er) {
-            console.error(er)
+    const [state, setState] = useState(data)
+
+    const onDragEnd = (result) => {
+        console.log(result, " res")
+        const {destination, source, draggableId} = result
+
+        if (!destination) {
+            return;
         }
+
+        if (destination.droppableId === source.droppableId && destination.index === source.index) {
+            return;
+        }
+
+        const currentColumn = state.find(item => item.id === source.droppableId)
+        const nextColumn = state.find(item => item.id === destination.droppableId)
+
+        const removed = currentColumn.data.splice(source.index, 1)
+        nextColumn.data.splice(destination.index, 0, ...removed)
+
+        const newState = state.map((column) => {
+            if (column.id === currentColumn.id) {
+                return currentColumn
+            }
+            if (column.id === nextColumn.id) {
+                return nextColumn
+            }
+            return column
+        })
+
     }
 
     return (
-        <div>
-            <div>
-                Привет это main page
-            </div>
-            <div>
-                тут можно создать юзера
-            </div>
-            <div>
-                <span>имя</span>
-                <input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder='имя' />
-            </div>
-            <div>
-                <span>возраст</span>
-                <input value={age} onChange={(e) => setAge(e.target.value)} type="text" placeholder='взраст' />
-            </div>
-            <button onClick={registerUser}>submit</button>
-
-
+        <div style={{display: "flex"}}>
+            <DragDropContext onDragEnd={onDragEnd}>
+                {
+                    state.map(column => <Columns key={column.id} column={column} />)
+                }
+            </DragDropContext>
         </div>
     );
 };

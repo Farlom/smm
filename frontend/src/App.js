@@ -8,7 +8,6 @@ function App() {
 
     const StyledContainer = styled.div`
       margin: 0 auto;
-      width: 700px;
     `
 
   return (
